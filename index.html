@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>9x9 UTS PuzzleSoc Sudoku Generator</title>
+  <!-- Link external CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>9x9 Sudoku Generator</h1>
+
+<!-- Container for table + side images -->
+<div class="sudoku-container">
+  <div class="side-image left"></div>
+  <table id="sudoku"></table>
+  <div class="side-image right"></div>
+</div>
+
+<!-- Buttons -->
+<button onclick="generateSudoku()">Generate New Sudoku</button>
+<button onclick="toggleSolution()">Show Solution</button>
+
+<!-- Sudoku JS -->
+<script src="sudoku.js"></script>
+
+</body>
+</html>
