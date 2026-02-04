@@ -54,29 +54,56 @@ function makePuzzle(board) {
   return puzzle;
 }
 
-// Render board with inputs
-function renderBoard(board) {
+function renderBoard(puzzle) {
   const table = document.getElementById('sudoku');
-  table.innerHTML='';
-  for(let r=0;r<9;r++){
+  table.innerHTML = '';
+
+  for (let r = 0; r < 9; r++) {
     const tr = document.createElement('tr');
-    for(let c=0;c<9;c++){
+
+    for (let c = 0; c < 9; c++) {
       const td = document.createElement('td');
-      if(board[r][c]!==0){
-        td.textContent = board[r][c];
-        td.classList.add('fixed');
+
+      if (puzzle[r][c] !== 0) {
+        td.textContent = puzzle[r][c];
+        td.classList.add('fixed'); // uneditable, always green
       } else {
         const input = document.createElement('input');
-        input.type='number';
-        input.min=1;
-        input.max=9;
+        input.type = 'text';
+        input.maxLength = 1;
+        input.style.width = '100%';
+        input.style.height = '100%';
+        input.style.fontSize = '24px';
+        input.style.textAlign = 'center';
+
+        // Check the cell as user types
+        input.addEventListener('input', () => checkCell(r, c, input));
+
         td.appendChild(input);
       }
+
       tr.appendChild(td);
     }
+
     table.appendChild(tr);
   }
 }
+function checkCell(row, col, input) {
+  const table = document.getElementById('sudoku');
+  const td = table.rows[row].cells[col];
+
+  td.classList.remove('correct', 'incorrect');
+
+  const val = parseInt(input.value);
+  if (!val) return; // ignore empty input
+
+  if (val === currentSolution[row][col]) {
+    td.classList.add('correct');   // green highlight
+  } else {
+    td.classList.add('incorrect'); // red highlight
+  }
+}
+
 
 // Global variables
 let currentPuzzle = [];
@@ -92,49 +119,72 @@ function generateSudoku() {
   renderBoard(currentPuzzle);
 }
 
-// Check solution
 function checkSolution() {
   const table = document.getElementById('sudoku');
-  for(let r=0;r<9;r++){
-    for(let c=0;c<9;c++){
+
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
       const td = table.rows[r].cells[c];
-      td.classList.remove('correct','incorrect'); // clear previous highlights
+      td.classList.remove('correct', 'incorrect');
+
       const input = td.querySelector('input');
-      if(input){
+
+      if (input) {
         const val = parseInt(input.value);
-        if(val && val === currentSolution[r][c]){
-          td.classList.add('correct');
+        if (val === currentSolution[r][c]) {
+          td.classList.add('correct');   // green highlight
         } else {
-          td.classList.add('incorrect');
+          td.classList.add('incorrect'); // red highlight
         }
       } else {
-        td.classList.add('correct'); // pre-filled numbers are "correct"
+        td.classList.add('correct');     // pre-filled number always green
       }
     }
   }
 }
+
+
 function toggleSolution() {
   const table = document.getElementById('sudoku');
 
   if (!solutionVisible) {
-    // Show solution
+    // Show solution highlighting without changing numbers
     for (let r = 0; r < 9; r++) {
       for (let c = 0; c < 9; c++) {
         const td = table.rows[r].cells[c];
-        td.classList.remove('correct','incorrect');
-        td.innerHTML = currentSolution[r][c]; // fill solution
-        td.classList.add('correct');          // highlight green
+        td.classList.remove('correct', 'incorrect'); // reset highlights
+
+        const input = td.querySelector('input');
+
+        if (input) {
+          const val = parseInt(input.value);
+
+          // Leave the user number visible
+          td.textContent = input.value || ''; 
+
+          if (val === currentSolution[r][c]) {
+            td.classList.add('correct'); // green
+          } else {
+            td.classList.add('incorrect'); // red
+          }
+        } else {
+          // Pre-filled number, always green
+          td.textContent = currentSolution[r][c];
+          td.classList.add('correct');
+        }
       }
     }
+
     solutionVisible = true;
     document.querySelector('button[onclick="toggleSolution()"]').textContent = 'Hide Solution';
   } else {
-    // Hide solution and restore puzzle
-    renderBoard(currentPuzzle); // restores user inputs
+    // Restore original puzzle with inputs
+    renderBoard(currentPuzzle);
     solutionVisible = false;
     document.querySelector('button[onclick="toggleSolution()"]').textContent = 'Show Solution';
   }
 }
+
 
 
 // Generate first puzzle on load

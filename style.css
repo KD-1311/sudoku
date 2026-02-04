@@ -46,17 +46,26 @@ td input {
 }
 
 /* Highlighting */
-td.correct input {
-  background-color: #b6f0b6; /* green */
+td.correct {
+  background-color: #b6f0b6;  /* green */
 }
 
-td.incorrect input {
-  background-color: #f0b6b6; /* red */
+td.incorrect {
+  background-color: #f0b6b6;  /* red */
 }
 
-/* Pre-filled numbers */
 td.fixed {
   font-weight: bold;
   background-color: #eee;
   user-select: none;
+}
+
+
+td input.user-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  text-align: center;
+  font-size: 1.5rem;
+  background: transparent;
 }
