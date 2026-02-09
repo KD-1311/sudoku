@@ -1,21 +1,34 @@
 // 9x9 Backtracking solver
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
 function solve(board) {
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
       if (board[row][col] === 0) {
-        for (let num = 1; num <= 9; num++) {
+
+        let numbers = shuffle([1,2,3,4,5,6,7,8,9]); // RANDOM ORDER
+
+        for (let num of numbers) {
           if (isSafe(board, row, col, num)) {
             board[row][col] = num;
             if (solve(board)) return true;
             board[row][col] = 0;
           }
         }
+
         return false;
       }
     }
   }
   return true;
 }
+
 
 // Check if number can be placed
 function isSafe(board, row, col, num) {
@@ -102,6 +115,11 @@ function checkCell(row, col, input) {
   } else {
     td.classList.add('incorrect'); // red highlight
   }
+  if (checkIfSolved()) {
+  stopTimer();
+  alert("Solved! Time: " + formatTime(seconds));
+}
+
 }
 
 
@@ -117,7 +135,22 @@ function generateSudoku() {
   currentPuzzle = puzzle;
   currentSolution = full;
   renderBoard(currentPuzzle);
+  startTimer();
+
 }
+function checkIfSolved() {
+  const cells = document.querySelectorAll("#sudoku td");
+
+  for (let td of cells) {
+    if (td.querySelector("input")) {
+      if (!td.classList.contains("correct")) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 
 function checkSolution() {
   const table = document.getElementById('sudoku');
@@ -139,6 +172,7 @@ function checkSolution() {
       } else {
         td.classList.add('correct');     // pre-filled number always green
       }
+      
     }
   }
 }
@@ -148,42 +182,59 @@ function toggleSolution() {
   const table = document.getElementById('sudoku');
 
   if (!solutionVisible) {
-    // Show solution highlighting without changing numbers
+    // Highlight solution without deleting inputs
     for (let r = 0; r < 9; r++) {
       for (let c = 0; c < 9; c++) {
         const td = table.rows[r].cells[c];
-        td.classList.remove('correct', 'incorrect'); // reset highlights
-
         const input = td.querySelector('input');
 
         if (input) {
           const val = parseInt(input.value);
-
-          // Leave the user number visible
-          td.textContent = input.value || ''; 
-
           if (val === currentSolution[r][c]) {
-            td.classList.add('correct'); // green
+            td.classList.add('correct');
+            td.classList.remove('incorrect');
           } else {
-            td.classList.add('incorrect'); // red
+            td.classList.add('incorrect');
+            td.classList.remove('correct');
           }
         } else {
-          // Pre-filled number, always green
-          td.textContent = currentSolution[r][c];
-          td.classList.add('correct');
+          td.classList.add('correct'); // fixed numbers
         }
       }
     }
 
     solutionVisible = true;
-    document.querySelector('button[onclick="toggleSolution()"]').textContent = 'Hide Solution';
   } else {
-    // Restore original puzzle with inputs
-    renderBoard(currentPuzzle);
+    // Remove highlights only
+    const cells = document.querySelectorAll("#sudoku td");
+    cells.forEach(td => td.classList.remove("correct", "incorrect"));
     solutionVisible = false;
-    document.querySelector('button[onclick="toggleSolution()"]').textContent = 'Show Solution';
   }
 }
+
+let timerInterval;
+let seconds = 0;
+
+function startTimer() {
+  clearInterval(timerInterval);
+  seconds = 0;
+  timerInterval = setInterval(() => {
+    seconds++;
+    document.getElementById("timer").innerText = 
+      "Time: " + formatTime(seconds);
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+}
+
+function formatTime(sec) {
+  let m = Math.floor(sec / 60);
+  let s = sec % 60;
+  return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+}
+
 
 
 
